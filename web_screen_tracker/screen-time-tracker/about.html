@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>About • ScreenTime</title>
+  <meta name="description" content="About ScreenTime — project details, resources, upcoming features and demo videos." />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-root">
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="brand-mark">ST</div>
+        <div>
+          <div class="brand-title">ScreenTime</div>
+          <div class="brand-sub">Privacy-first tab tracker</div>
+        </div>
+      </div>
+
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="about.html" class="nav-link active">About</a>
+        <a href="main.html" class="nav-link">Tracker</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container about-page">
+    <section class="card glass animate-fadeup">
+      <h1>About ScreenTime</h1>
+      <p class="muted">A lightweight front-end application that measures active time spent on the browser tab. It stores data locally to preserve privacy and allows export, pause, and visual analysis.</p>
+
+      <div class="grid-2">
+        <div>
+          <h3>Project structure</h3>
+          <ul class="muted">
+            <li>Single-page styled pages with shared CSS & JS</li>
+            <li>LocalStorage data model per day (YYYY-MM-DD)</li>
+            <li>Page Visibility API + focus/blur detection for accurate sessions</li>
+            <li>Canvas-based chart for 7-day overview</li>
+          </ul>
+        </div>
+
+        <div>
+          <h3>Resources & references</h3>
+          <div class="resource-list">
+            <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API" target="_blank">MDN • Page Visibility API</a>
+            <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API" target="_blank">MDN • Canvas API</a>
+            <a class="resource" href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage" target="_blank">MDN • localStorage</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card glass animate-fadeup">
+      <h2>Upcoming features</h2>
+      <ul class="feature-list">
+        <li class="feature"><strong>Weekly insights</strong> — Smart suggestions based on your weekly active time patterns.</li>
+        <li class="feature"><strong>PWA support</strong> — Installable app + offline caching via Service Worker.</li>
+        <li class="feature"><strong>Profile & Sync</strong> — Optional end-to-end encrypted sync (opt-in).</li>
+        <li class="feature"><strong>Focus Mode</strong> — Pomodoro + auto-blocker integrations (experimental).</li>
+        <li class="feature"><strong>Better charts</strong> — Interactive charts & heatmaps for deep analysis.</li>
+      </ul>
+      <div class="tiny muted">These features are planned for future releases — keep an eye on the repo and demo videos below.</div>
+    </section>
+
+    <section class="card glass animate-fadeup media-section">
+      <h2>Project Videos & Demos</h2>
+      <p class="muted">Latest demo + older recordings remain below.</p>
+
+      <div class="video-grid">
+        <!-- Primary embed (example video ID placeholder) -->
+        <div class="video-wrap">
+          <iframe src="https://youtu.be/yM9jX_1A-dY?si=DSDa3DWeH0s1gQiv" title="ScreenTime Demo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+
+        <!-- Old demo link kept -->
+        <div class="video-card">
+          <h4>Old demo (kept)</h4>
+          <p class="muted">Archived demo showing initial prototype.</p>
+          <a class="btn btn-ghost" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">Watch old demo</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="card glass animate-fadeup">
+      <h2>Connect & Socials</h2>
+      <p class="muted">Follow the project, star the repo, or reach out.</p>
+      <div class="social-row">
+        <a class="social-large" href="#" target="_blank">GitHub</a>
+        <a class="social-large" href="#" target="_blank">LinkedIn</a>
+        <a class="social-large" href="#" target="_blank">YouTube</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div><strong>ScreenTime</strong> • Built by <span id="devNameAbout">Aswini Devi Medisetti</span></div>
+      <div class="footer-meta tiny muted">© <span id="yearAbout"></span> • Privacy-first front-end demo</div>
+      <div class="tiny muted">Thanks for checking this project — try the tracker for a day and export your data.</div>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

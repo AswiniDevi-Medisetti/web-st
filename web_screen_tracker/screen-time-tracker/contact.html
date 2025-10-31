@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Contact • ScreenTime</title>
+  <meta name="description" content="Contact the developer of ScreenTime — send feedback, bug reports, or feature requests." />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-root">
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="brand-mark">ST</div>
+        <div>
+          <div class="brand-title">ScreenTime</div>
+          <div class="brand-sub">Privacy-first tab tracker</div>
+        </div>
+      </div>
+
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="main.html" class="nav-link">Tracker</a>
+        <a href="contact.html" class="nav-link active">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- subtle particle background (decorative) -->
+  <div class="particles" aria-hidden="true"></div>
+
+  <main class="container contact-page">
+    <section class="card glass contact-card animate-zoomin">
+      <div class="contact-grid">
+        <div>
+          <h2>Contact the developer</h2>
+          <p class="muted">Have a feature idea, bug report, or want to collaborate? Send me a message — your email client will open with a draft (or copy the email).</p>
+
+          <div class="contact-info">
+            <div><strong>Email</strong><br><span id="devEmail">medisettiaswinidevi2@gmail.com</span> <button class="chip" id="copyEmail">Copy</button></div>
+            <div style="margin-top:12px"><strong>Response</strong><br><span class="muted tiny">I usually respond within a few business days.</span></div>
+          </div>
+
+          <div class="social-row" style="margin-top:12px">
+            <a href="https://github.com/AswiniDevi-Medisetti" class="social-pill">GitHub</a>
+            <a href="https://www.linkedin.com/in/aswinimedisetti28" class="social-pill">LinkedIn</a>
+            <a href="https://www.youtube.com/@MyTechy-Life2379" class="social-pill">YouTube</a>
+          </div>
+        </div>
+
+        <div>
+          <form id="contactForm" class="contact-form" autocomplete="on">
+            <div class="field">
+              <input id="cname" name="name" type="text" required>
+              <label for="cname">Your name</label>
+            </div>
+
+            <div class="field">
+              <input id="cemail" name="email" type="email" required>
+              <label for="cemail">Your email</label>
+            </div>
+
+            <div class="field">
+              <textarea id="cmessage" name="message" rows="6" required></textarea>
+              <label for="cmessage">Message</label>
+            </div>
+
+            <div style="display:flex;gap:10px;align-items:center">
+              <button class="btn btn-primary" type="submit">Open email</button>
+              <button class="btn btn-ghost" type="button" id="clearContact">Clear</button>
+            </div>
+
+            <div id="contactHint" class="tiny muted" style="margin-top:8px">This opens your email client using a mailto: URL. Replace with server endpoint to send directly.</div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div><strong>ScreenTime</strong> • Built by <span id="devNameContact">Aswini Devi Medisetti</span></div>
+      <div class="footer-meta tiny muted">© <span id="yearContact"></span></div>
+      <div class="tiny muted">Thanks — your feedback helps shape upcoming features.</div>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>

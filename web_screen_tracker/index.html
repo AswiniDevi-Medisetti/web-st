@@ -1,0 +1,921 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ScreenTime • Modern Tracker</title>
+<meta name="description" content="ScreenTime Tracker — monitors browser tab time, elegant UI built with HTML, CSS & JS." />
+
+<!-- Performance: preconnect to Unsplash for background -->
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+
+<style>
+  :root{
+    --bg-overlay: rgba(6,10,20,0.46);
+    --glass: rgba(255,255,255,0.06);
+    --accent: #7c5cff;
+    --accent-2: #00d4ff;
+    --muted: #b8c2d3;
+    --glass-2: rgba(255,255,255,0.04);
+    --card-radius: 14px;
+    --shadow: 0 6px 30px rgba(2,6,23,0.45);
+    --fw-bold: 700;
+    --fw-medium: 600;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+
+  /* Global reset */
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body,#app{height:100%}
+  body{
+    color:#e9eef8;
+    background: linear-gradient(180deg, rgba(7,10,18,1) 0%, rgba(2,6,23,1) 100%);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    overflow-y:auto;
+    line-height:1.4;
+  }
+
+  /* App background image for Home (keeps performance with CSS and overlay) */
+  .hero-bg {
+    background-image:
+      linear-gradient(120deg, rgba(12,14,30,0.45), rgba(6,9,18,0.45)),
+      url("https://images.unsplash.com/photo-1522199710521-72d69614c702?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3&s=59c9e7466f6f5c8d6f8c6fab39a0bdf2");
+    background-size:cover;
+    background-position:center;
+    min-height:60vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:48px 18px;
+  }
+
+  /* App container & header */
+  .container{max-width:1150px;margin:0 auto;padding:24px}
+  header{
+    display:flex;align-items:center;justify-content:space-between;padding:12px 0;
+  }
+  .logo{
+    display:flex;gap:12px;align-items:center;
+  }
+  .logo .mark{
+    width:46px;height:46px;border-radius:10px;
+    background: linear-gradient(135deg,var(--accent),var(--accent-2));
+    display:flex;align-items:center;justify-content:center;font-weight:800;
+    box-shadow: 0 6px 20px rgba(124,92,255,0.18), inset 0 -4px 12px rgba(255,255,255,0.06);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+    font-size:18px;
+    transform:rotate(-12deg);
+  }
+  .logotext{font-weight:800;font-size:18px;letter-spacing:0.3px}
+  nav{display:flex;gap:16px;align-items:center}
+  .nav-links{display:flex;gap:12px}
+  .nav-links a{
+    color:var(--muted);text-decoration:none;padding:8px 12px;border-radius:10px;font-weight:600;font-size:15px;
+  }
+  .nav-links a.active, .nav-links a:hover{background:var(--glass-2);color: #fff; box-shadow: none; transition:all .18s ease}
+
+  /* Mobile hamburger */
+  .hamburger{
+    display:none;width:46px;height:46px;border-radius:12px;background:transparent;border:1px solid rgba(255,255,255,0.04);
+    align-items:center;justify-content:center;cursor:pointer;
+  }
+  .hamburger .bar{width:20px;height:2px;background:linear-gradient(90deg,#fff,#bcd);display:block;position:relative}
+  .hamburger .bar:before,.hamburger .bar:after{
+    content:"";position:absolute;left:0;width:100%;height:2px;background:inherit;border-radius:1px;
+  }
+  .hamburger .bar:before{top:-6px}
+  .hamburger .bar:after{bottom:-6px}
+
+  /* Pages */
+  main.page{padding:28px 0}
+  section.screen{display:none;opacity:0;transform:translateY(10px);transition:all .45s cubic-bezier(.2,.9,.2,1);min-height:60vh}
+  section.screen.active{display:block;opacity:1;transform:none}
+
+  /* Home Hero content */
+  .hero-card{
+    width:100%;max-width:980px;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    border-radius:18px;padding:36px;backdrop-filter: blur(8px);box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.03);
+    display:grid;grid-template-columns:1fr 360px;gap:26px;align-items:center;
+  }
+  .hero-left h1{font-size:34px;line-height:1.02;margin-bottom:10px}
+  .hero-left p{color:var(--muted);margin-bottom:18px}
+  .cta-row{display:flex;gap:12px;align-items:center}
+  .btn{
+    padding:10px 16px;border-radius:12px;border:none;cursor:pointer;font-weight:700;letter-spacing:0.2px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#041024;box-shadow:0 8px 30px rgba(124,92,255,0.18);
+  }
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#fff}
+
+  /* Animated subtext */
+  .subtitle{display:flex;gap:8px;align-items:center;color:var(--muted);font-weight:600}
+  .pulse{width:10px;height:10px;border-radius:50%;background:linear-gradient(90deg,#ffd6a5,#ff6b6b);box-shadow:0 4px 18px rgba(255,107,107,0.14);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%{transform:scale(.8)}50%{transform:scale(1.15)}100%{transform:scale(.8)}}
+
+  /* Right card */
+  .hero-stats{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:12px}
+  .stat{display:flex;justify-content:space-between;padding:8px 6px;border-radius:10px;margin-bottom:8px;color:var(--muted);font-weight:600}
+  .stat strong{color:#fff}
+
+  /* Animated intro */
+  .fade-in{animation:fadeInUp .9s cubic-bezier(.2,.9,.2,1) both}
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+  /* Forms & Cards */
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:20px;border-radius:var(--card-radius);box-shadow:var(--shadow);border:1px solid rgba(255,255,255,0.03)}
+  form .row{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+  label{font-size:13px;color:var(--muted);font-weight:700}
+  input[type="text"],input[type="email"],input[type="password"],textarea{
+    padding:12px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:#fff;outline:none;font-size:14px;
+  }
+  textarea{min-height:120px;resize:vertical}
+
+  .msg-card{position:fixed;left:50%;top:18%;transform:translateX(-50%);z-index:120;min-width:320px;max-width:420px;padding:18px;border-radius:12px;background:linear-gradient(180deg,#101827,#071021);border:1px solid rgba(255,255,255,0.04);box-shadow:0 20px 60px rgba(2,6,23,0.6)}
+
+  /* Tracker dashboard */
+  .grid{display:grid;grid-template-columns:1fr 420px;gap:20px}
+  .tracker-hero{display:flex;flex-direction:column;gap:18px}
+  .time-big{font-size:46px;font-weight:800}
+  .info-line{color:var(--muted);font-weight:600}
+
+  .chart{background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));padding:16px;border-radius:12px}
+
+  .sessions{max-height:260px;overflow:auto;padding-right:6px}
+  .session-item{display:flex;justify-content:space-between;padding:10px;border-radius:10px;margin-bottom:8px;background:rgba(255,255,255,0.02);font-weight:600;color:var(--muted)}
+
+  /* About resources cards */
+  .resources{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
+  .resource-card{padding:12px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border:1px solid rgba(255,255,255,0.03)}
+
+  /* Footer */
+  footer{padding:28px 0;border-top:1px solid rgba(255,255,255,0.03);margin-top:40px;color:var(--muted)}
+  .footer-grid{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .socials a{color:var(--muted);margin-left:10px;text-decoration:none}
+
+  /* small screens */
+  @media (max-width:920px){
+    .hero-card{grid-template-columns:1fr; padding:22px}
+    .grid{grid-template-columns:1fr}
+    .hamburger{display:flex}
+    .nav-links{display:none}
+  }
+
+  /* small niceties */
+  .tiny{font-size:12px;color:var(--muted)}
+  .muted{color:var(--muted)}
+  .kbd{padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.03);font-weight:700}
+  .link{color:var(--accent);cursor:pointer;text-decoration:underline}
+</style>
+</head>
+<body>
+<div id="app" class="hero-bg">
+  <div class="container">
+    <header>
+      <div class="logo" aria-label="Site logo">
+        <div class="mark">ST</div>
+        <div>
+          <div class="logotext">ScreenTime</div>
+          <div class="tiny">Elegant tab time tracking</div>
+        </div>
+      </div>
+
+      <nav>
+        <div class="nav-links" role="navigation" aria-label="Main navigation">
+          <a href="#home" data-link="home" class="active">Home</a>
+          <a href="#main" data-link="main">Tracker</a>
+          <a href="#about" data-link="about">About</a>
+          <a href="#contact" data-link="contact">Contact</a>
+        </div>
+
+        <div class="hamburger" id="hambtn" aria-label="Open menu" title="Menu">
+          <span class="bar"></span>
+        </div>
+      </nav>
+    </header>
+
+    <main class="page">
+
+      <!-- HOME -->
+      <section id="home" class="screen active fade-in">
+        <div class="hero-card" role="region" aria-label="Hero">
+          <div class="hero-left">
+            <h1>Know your tab time. Take control of focus.</h1>
+            <p class="muted">ScreenTime tracks how long your browser tab stays active and visualizes session trends — privacy-first, local-only storage, and beautifully animated.</p>
+
+            <div class="subtitle"><span class="pulse" aria-hidden="true"></span> <div>Real-time tracking • Local-first • Lightweight</div></div>
+
+            <div style="height:16px"></div>
+
+            <div class="cta-row">
+              <button class="btn" id="signupBtn">Sign up</button>
+              <button class="btn ghost" id="signinBtn">Sign in</button>
+              <div style="flex:1"></div>
+              <div class="tiny muted">Already have an account? <span class="link" id="quickSign">Sign in</span></div>
+            </div>
+
+            <div style="height:14px"></div>
+            <div class="tiny muted">Animated, responsive UI — built with HTML, CSS & Vanilla JS.</div>
+          </div>
+
+          <aside class="hero-stats">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <div class="tiny">Today</div>
+              <div class="tiny muted">Local only • No server</div>
+            </div>
+
+            <div class="stat"><div>Active time</div><div><strong id="homeActive">00:00:00</strong></div></div>
+            <div class="stat"><div>Sessions</div><div><strong id="homeSessions">0</strong></div></div>
+            <div style="height:8px"></div>
+            <div class="tiny muted">Tip: stay focused by using our Pomodoro in future releases.</div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- SIGNUP -->
+      <section id="signup" class="screen card">
+        <div style="max-width:820px;margin:0 auto;display:grid;grid-template-columns:1fr 320px;gap:20px">
+          <div>
+            <h2 style="margin-bottom:8px">Create your account</h2>
+            <p class="muted" style="margin-bottom:12px">Quick signup — data stays in your browser (localStorage). Use a real email for contact features.</p>
+
+            <form id="signupForm" autocomplete="on" novalidate>
+              <div class="row">
+                <label for="suName">Full name</label>
+                <input id="suName" name="name" type="text" placeholder="Jane Developer" required>
+              </div>
+              <div class="row">
+                <label for="suEmail">Email</label>
+                <input id="suEmail" name="email" type="email" placeholder="you@example.com" required>
+              </div>
+              <div class="row">
+                <label for="suPass">Password</label>
+                <input id="suPass" name="password" type="password" placeholder="Create a strong password" required>
+              </div>
+              <div style="display:flex;gap:12px;align-items:center">
+                <button class="btn" type="submit">Create account</button>
+                <button class="btn ghost" id="toSigninFromSign" type="button">Already have account</button>
+              </div>
+            </form>
+          </div>
+
+          <aside class="card" style="display:flex;flex-direction:column;gap:12px;align-items:flex-start">
+            <div style="font-weight:800">Why local-first?</div>
+            <div class="muted tiny">Privacy. Speed. Offline-friendly. You control your data — export or reset anytime.</div>
+            <div style="height:6px"></div>
+            <div style="width:100%;background:rgba(255,255,255,0.02);padding:12px;border-radius:10px">
+              <div style="font-weight:700">Getting started</div>
+              <div class="tiny muted">After signup, go to Tracker → time will be logged automatically while you have the tab visible.</div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- SIGNIN -->
+      <section id="signin" class="screen card">
+        <div style="max-width:600px;margin:0 auto">
+          <h2>Sign in to your account</h2>
+          <p class="muted">Signed up? Great — sign in and view your tracking history.</p>
+
+          <form id="signinForm" novalidate>
+            <div class="row">
+              <label for="siEmail">Email</label>
+              <input id="siEmail" type="email" placeholder="you@example.com" required>
+            </div>
+            <div class="row">
+              <label for="siPass">Password</label>
+              <input id="siPass" type="password" placeholder="Password" required>
+            </div>
+            <div style="display:flex;gap:12px;align-items:center">
+              <button class="btn" type="submit">Sign in</button>
+              <button class="btn ghost" id="toSignupFromSign" type="button">Create account</button>
+            </div>
+          </form>
+          <div style="height:12px"></div>
+          <div class="muted tiny">Note: If you haven't created an account, clicking Sign in will show a prompt to sign up first.</div>
+        </div>
+      </section>
+
+      <!-- MAIN TRACKER -->
+      <section id="main" class="screen">
+        <div class="container">
+          <div class="grid">
+            <div class="tracker-hero card">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div class="tiny">Welcome back, <span id="userGreeting">Guest</span></div>
+                  <div class="time-big" id="displayTotal">00:00:00</div>
+                  <div class="info-line">Total active time today</div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">
+                  <button class="btn" id="resetBtn">Reset Today</button>
+                  <button class="btn ghost" id="exportBtn">Export CSV</button>
+                </div>
+              </div>
+
+              <div style="height:6px"></div>
+              <div class="muted tiny">Session details</div>
+              <div class="sessions card" id="sessionsList" aria-live="polite"></div>
+            </div>
+
+            <aside>
+              <div class="card chart">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div style="font-weight:800">Daily Overview</div>
+                  <div class="tiny muted">Last 7 days</div>
+                </div>
+                <canvas id="miniChart" width="360" height="180" style="display:block;margin-top:12px;border-radius:8px"></canvas>
+              </div>
+
+              <div style="height:12px"></div>
+
+              <div class="card">
+                <div style="font-weight:800">Live controls</div>
+                <div style="height:8px"></div>
+                <div style="display:flex;gap:8px">
+                  <button class="btn" id="pauseTrack">Pause tracking</button>
+                  <button class="btn ghost" id="resumeTrack">Resume</button>
+                </div>
+                <div style="height:10px"></div>
+                <div class="tiny muted">Tracking is automatic when the tab is visible. Pause if you want to stop collecting time.</div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section id="about" class="screen card">
+        <div style="max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 360px;gap:20px">
+          <div>
+            <h2>About ScreenTime Tracker</h2>
+            <p class="muted">This project demonstrates a privacy-first screen time tracker that monitors how long your browser tab is active. All tracking data stays in your browser (localStorage). The UI emphasizes performance, accessibility, and micro-animations.</p>
+
+            <h3 style="margin-top:14px">Project structure</h3>
+            <ul class="muted tiny" style="margin-left:16px">
+              <li>Single-file SPA (HTML + CSS + JS)</li>
+              <li>localStorage persistence & daily rollup</li>
+              <li>Visibility and focus events to detect active time</li>
+              <li>Canvas mini-chart for last 7 days</li>
+            </ul>
+
+            <h3 style="margin-top:12px">Resources & articles</h3>
+            <div class="resources">
+              <div class="resource-card">
+                <div style="font-weight:800">Detecting page visibility</div>
+                <div class="tiny muted">Use the Page Visibility API for accurate active tab measurement.</div>
+                <div style="height:6px"></div>
+                <div class="tiny"><a class="link" href="https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API" target="_blank" rel="noopener">MDN: Page Visibility API</a></div>
+              </div>
+
+              <div class="resource-card">
+                <div style="font-weight:800">Storing data locally</div>
+                <div class="tiny muted">localStorage is simple and fast for user-scoped persistence.</div>
+                <div style="height:6px"></div>
+                <div class="tiny"><a class="link" href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage" target="_blank" rel="noopener">MDN: localStorage</a></div>
+              </div>
+
+              <div class="resource-card">
+                <div style="font-weight:800">Canvas basics</div>
+                <div class="tiny muted">Render simple charts without external libs for speed and control.</div>
+                <div style="height:6px"></div>
+                <div class="tiny"><a class="link" href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial" target="_blank" rel="noopener">MDN: Canvas API</a></div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="card">
+            <div style="font-weight:800">Project metadata</div>
+            <div class="muted tiny" style="margin-top:8px">Version: 1.0 • Built: 2025 • Tech: HTML/CSS/JS</div>
+            <div style="height:12px"></div>
+            <div style="font-weight:700">Quick config</div>
+            <div class="tiny muted" style="margin-top:8px">You can change storage key, date logic, or add server sync later. This is intentionally modular.</div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section id="contact" class="screen card">
+        <div style="max-width:920px;margin:0 auto;display:grid;grid-template-columns:1fr 320px;gap:18px">
+          <div>
+            <h2>Contact developer</h2>
+            <p class="muted">Send me a message about feature requests or bugs. This will open your email client with a prefilled message (replace with server endpoint to send directly).</p>
+
+            <form id="contactForm" novalidate>
+              <div class="row">
+                <label for="cName">Your name</label>
+                <input id="cName" type="text" placeholder="Your name" required>
+              </div>
+              <div class="row">
+                <label for="cEmail">Your email</label>
+                <input id="cEmail" type="email" placeholder="you@domain.com" required>
+              </div>
+              <div class="row">
+                <label for="cMessage">Message</label>
+                <textarea id="cMessage" placeholder="Write your message..." required></textarea>
+              </div>
+              <div style="display:flex;gap:12px;align-items:center">
+                <button class="btn" type="submit">Open Email</button>
+                <button class="btn ghost" id="copyDevEmail" type="button">Copy developer email</button>
+              </div>
+            </form>
+          </div>
+
+          <aside class="card">
+            <div style="font-weight:800">Developer</div>
+            <div class="tiny muted" style="margin-top:8px">Name: Your Name Here</div>
+            <div class="tiny muted">Email: <span id="devEmail">dev@example.com</span></div>
+            <div style="height:8px"></div>
+            <div class="tiny muted">Pro tip: replace dev@example.com with your real email in the code so users' mailto links connect to you automatically.</div>
+          </aside>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>
+      <div class="footer-grid">
+        <div>
+          <div style="font-weight:800">ScreenTime</div>
+          <div class="tiny muted">Made with ♥ • Frontend portfolio piece</div>
+        </div>
+
+        <div class="tiny muted">© <span id="year"></span> • Built by Developer • <span class="tiny">Privacy-first</span></div>
+
+        <div class="socials">
+          <a href="#" title="GitHub" aria-label="GitHub">GitHub</a>
+          <a href="#" title="Twitter" aria-label="Twitter">Twitter</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- Message template (hidden) -->
+<template id="msgTpl">
+  <div class="msg-card card" role="status" aria-live="polite">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-weight:800" id="msgTitle">Heads up</div>
+      <div style="font-size:12px;color:var(--muted);cursor:pointer" id="msgClose">✕</div>
+    </div>
+    <div style="height:8px"></div>
+    <div class="muted tiny" id="msgBody">Sample message</div>
+  </div>
+</template>
+
+<script defer>
+/* =========================
+   ScreenTime Tracker SPA
+   Single-file, no external libs
+   ========================= */
+
+(() => {
+  // --------------------------
+  // Utility helpers
+  // --------------------------
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const qs = (el, sel) => el.querySelector(sel);
+
+  function formatDuration(ms){
+    if(!ms || ms < 0) ms = 0;
+    const sec = Math.floor(ms/1000)%60;
+    const min = Math.floor(ms/60000)%60;
+    const hrs = Math.floor(ms/3600000);
+    return [hrs, min, sec].map(n => String(n).padStart(2,'0')).join(':');
+  }
+
+  function nowISO(){ return new Date().toISOString().slice(0,10); } // YYYY-MM-DD
+
+  // --------------------------
+  // Routing (simple)
+  // --------------------------
+  const links = $$('.nav-links a');
+  function showPage(id){
+    $$('.screen').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById(id);
+    if(el) el.classList.add('active');
+    links.forEach(a => a.classList.toggle('active', a.dataset.link === id));
+    // update hero stats quick (home)
+    updateHomeStats();
+  }
+
+  links.forEach(a => a.addEventListener('click', e => {
+    e.preventDefault();
+    const id = a.dataset.link;
+    showPage(id);
+    history.replaceState(null, '', `#${id}`);
+  }));
+
+  // mobile menu toggling
+  const hambtn = $('#hambtn');
+  hambtn && hambtn.addEventListener('click', ()=> {
+    const nav = document.querySelector('.nav-links');
+    nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+  });
+
+  // initial route from hash
+  const initial = (location.hash && location.hash.slice(1)) || 'home';
+  showPage(initial);
+
+  // --------------------------
+  // User account (localStorage)
+  // --------------------------
+  const STORAGE_USER = 'st_user_v1';
+  const STORAGE_DATA = 'st_data_v1'; // structure: { 'YYYY-MM-DD': { totalMs, sessions: [ {start, end} ] }, ... }
+  const STORAGE_CONFIG = 'st_conf_v1';
+
+  function saveUser(user){
+    localStorage.setItem(STORAGE_USER, JSON.stringify(user));
+  }
+  function getUser(){ try{return JSON.parse(localStorage.getItem(STORAGE_USER)) || null;}catch(e){return null;} }
+
+  // signup form
+  const signupForm = $('#signupForm');
+  const signinForm = $('#signinForm');
+
+  signupForm && signupForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = $('#suName').value.trim();
+    const email = $('#suEmail').value.trim();
+    const pass = $('#suPass').value;
+    if(!name || !email || !pass){ showMsg('Oops', 'Please fill all signup fields.'); return; }
+    // Save user (insecure: demo only)
+    saveUser({ name, email, password: pass, created: new Date().toISOString() });
+    showMsg('Welcome!', 'Account created — you can sign in now.');
+    setTimeout(()=> showPage('signin'), 900);
+  });
+
+  // sign-in logic
+  signinForm && signinForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const email = $('#siEmail').value.trim();
+    const pass = $('#siPass').value;
+    const user = getUser();
+    if(!user){
+      // show "first sign up" message card
+      showMsg('Sign up first', 'No account found — please sign up before signing in.', {ctaText:'Go to Sign up', onCTA:()=> showPage('signup')});
+      return;
+    }
+    if(user.email === email && user.password === pass){
+      // success
+      showMsg('Signed in', `Welcome back, ${user.name}!`);
+      setTimeout(()=> {
+        user.signedAt = new Date().toISOString();
+        saveUser(user);
+        $('#userGreeting').textContent = user.name.split(' ')[0] || user.name;
+        showPage('main');
+      }, 700);
+    } else {
+      showMsg('Invalid', 'Email or password incorrect.');
+    }
+  });
+
+  // quick nav from hero
+  $('#signupBtn')?.addEventListener('click', ()=> showPage('signup'));
+  $('#signinBtn')?.addEventListener('click', ()=> {
+    // If no user, show sign-up instruction
+    if(!getUser()){
+      showMsg('Sign up first', 'You need to create an account before signing in.', {ctaText:'Create account', onCTA:()=> showPage('signup')});
+    } else showPage('signin');
+  });
+  $('#quickSign')?.addEventListener('click', ()=> {
+    if(!getUser()) showPage('signup'); else showPage('signin');
+  });
+  $('#toSignupFromSign')?.addEventListener('click', ()=> showPage('signup'));
+  $('#toSigninFromSign')?.addEventListener('click', ()=> showPage('signin'));
+
+  // message card helper
+  function showMsg(title, text, options = {}) {
+    const tpl = document.getElementById('msgTpl');
+    const node = tpl.content.cloneNode(true);
+    const msgEl = node.querySelector('.msg-card');
+    qs(msgEl,'#msgTitle').textContent = title;
+    qs(msgEl,'#msgBody').textContent = text;
+    document.body.appendChild(msgEl);
+    // CTA?
+    if(options.ctaText){
+      const btn = document.createElement('button');
+      btn.className = 'btn';
+      btn.style.marginTop = '12px';
+      btn.textContent = options.ctaText;
+      btn.addEventListener('click', ()=> {
+        options.onCTA && options.onCTA();
+        msgEl.remove();
+      });
+      msgEl.appendChild(btn);
+    }
+    // auto close
+    const closeBtn = msgEl.querySelector('#msgClose');
+    closeBtn && closeBtn.addEventListener('click', ()=> msgEl.remove());
+    setTimeout(()=> { msgEl.style.transform = 'translateY(0)'; }, 8);
+    // remove after 6s (unless options.keep)
+    if(!options.keep) setTimeout(()=> msgEl.remove(), 6200);
+  }
+
+  // --------------------------
+  // Tracking engine
+  // --------------------------
+  // We'll track by day key (YYYY-MM-DD). Data model:
+  // { '2025-10-18': { totalMs: 12345, sessions: [{start:iso,end:iso}] }, ... }
+  function loadData(){
+    try{
+      return JSON.parse(localStorage.getItem(STORAGE_DATA) || '{}');
+    }catch(e){ return {}; }
+  }
+  function saveData(data){ localStorage.setItem(STORAGE_DATA, JSON.stringify(data)); }
+
+  let trackingPaused = false;
+  let activeSessionStart = null; // Date
+  let currentDayKey = nowISO();
+  let data = loadData();
+  if(!data[currentDayKey]) data[currentDayKey] = { totalMs:0, sessions:[] };
+
+  // Helper to start session
+  function startSession(){
+    if(trackingPaused) return;
+    if(activeSessionStart) return;
+    activeSessionStart = Date.now();
+    // Add provisional session (end will be filled on stop)
+    data = loadData(); currentDayKey = nowISO();
+    if(!data[currentDayKey]) data[currentDayKey] = { totalMs:0, sessions:[] };
+    data[currentDayKey].sessions.push({ start: new Date(activeSessionStart).toISOString(), end: null });
+    saveData(data);
+    renderSessions();
+  }
+
+  // Helper to stop session
+  function stopSession(){
+    if(!activeSessionStart) return;
+    const end = Date.now();
+    const dur = end - activeSessionStart;
+    data = loadData(); currentDayKey = nowISO();
+    if(!data[currentDayKey]) data[currentDayKey] = { totalMs:0, sessions:[] };
+    // find last session with null end and set it
+    const last = data[currentDayKey].sessions.slice().reverse().find(s => s.end === null);
+    if(last){
+      last.end = new Date(end).toISOString();
+    } else {
+      // if missing, push a session
+      data[currentDayKey].sessions.push({ start:new Date(activeSessionStart).toISOString(), end: new Date(end).toISOString() });
+    }
+    data[currentDayKey].totalMs = (data[currentDayKey].totalMs || 0) + dur;
+    saveData(data);
+    activeSessionStart = null;
+    renderSessions();
+  }
+
+  // Visibility & focus logic
+  let windowFocused = document.hasFocus();
+  let docVisible = document.visibilityState === 'visible';
+
+  function handleVisibilityChange(){
+    docVisible = document.visibilityState === 'visible';
+    evaluateTrackingState();
+  }
+  function handleFocus(){ windowFocused = true; evaluateTrackingState(); }
+  function handleBlur(){ windowFocused = false; evaluateTrackingState(); }
+
+  function evaluateTrackingState(){
+    // Track when both visible AND focused AND not paused
+    if(!trackingPaused && docVisible && windowFocused){
+      startSession();
+    } else {
+      stopSession();
+    }
+    updateLiveTimeDisplay();
+  }
+
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+  window.addEventListener('focus', handleFocus);
+  window.addEventListener('blur', handleBlur);
+
+  // Manual controls
+  $('#pauseTrack')?.addEventListener('click', ()=>{
+    trackingPaused = true;
+    stopSession();
+    showMsg('Paused', 'Tracking paused. Resume when ready.');
+  });
+  $('#resumeTrack')?.addEventListener('click', ()=>{
+    trackingPaused = false;
+    evaluateTrackingState();
+    showMsg('Resumed', 'Tracking resumed.');
+  });
+
+  // Reset today
+  $('#resetBtn')?.addEventListener('click', ()=>{
+    if(!confirm('Reset today\'s tracked time? This cannot be undone.')) return;
+    data = loadData();
+    const key = nowISO();
+    data[key] = { totalMs:0, sessions:[] };
+    saveData(data);
+    renderAll();
+    showMsg('Reset', 'Today\'s data cleared.');
+  });
+
+  // Export CSV
+  $('#exportBtn')?.addEventListener('click', ()=>{
+    const csv = buildCSV();
+    downloadBlob(csv, 'screentime-export.csv', 'text/csv;charset=utf-8;');
+  });
+
+  function buildCSV(){
+    const all = loadData();
+    const rows = [['date','total_seconds','session_start','session_end','session_seconds']];
+    for(const day of Object.keys(all).sort()){
+      const rec = all[day];
+      const total = Math.round((rec.totalMs||0)/1000);
+      if(rec.sessions && rec.sessions.length){
+        for(const s of rec.sessions){
+          const st = s.start || '';
+          const en = s.end || '';
+          let sec = '';
+          if(s.start && s.end){
+            sec = Math.round((new Date(s.end) - new Date(s.start))/1000);
+          }
+          rows.push([day, total, st, en, sec]);
+        }
+      } else {
+        rows.push([day, total, '', '', '']);
+      }
+    }
+    return rows.map(r => r.map(col => `"${String(col).replace(/"/g,'""')}"`).join(',')).join('\n');
+  }
+
+  function downloadBlob(str, filename, type){
+    const blob = new Blob([str], {type});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 5000);
+  }
+
+  // Render functions
+  function renderSessions(){
+    const list = $('#sessionsList');
+    list.innerHTML = '';
+    const days = loadData();
+    const day = days[nowISO()] || { totalMs:0, sessions:[] };
+    $('#displayTotal').textContent = formatDuration(day.totalMs + (activeSessionStart ? (Date.now()-activeSessionStart) : 0));
+    // sessions show latest first
+    const sessions = (day.sessions || []).slice().reverse();
+    if(sessions.length === 0) {
+      list.innerHTML = '<div class="tiny muted">No sessions yet. Keep the tab open to start tracking.</div>';
+      return;
+    }
+    sessions.forEach(s => {
+      const start = s.start ? new Date(s.start) : null;
+      const end = s.end ? new Date(s.end) : null;
+      const dur = (start && end) ? (end - start) : (start && activeSessionStart ? Date.now() - start.getTime() : null);
+      const el = document.createElement('div');
+      el.className = 'session-item';
+      el.innerHTML = \`
+        <div>\${start ? start.toLocaleTimeString() : '—' } \${end ? '→ ' + end.toLocaleTimeString() : '→ • active'}</div>
+        <div>\${dur !== null ? formatDuration(dur) : '—'}</div>
+      \`;
+      list.appendChild(el);
+    });
+  }
+
+  function updateHomeStats(){
+    const days = loadData();
+    const day = days[nowISO()] || { totalMs:0, sessions:[] };
+    $('#homeActive').textContent = formatDuration(day.totalMs + (activeSessionStart ? (Date.now()-activeSessionStart) : 0));
+    $('#homeSessions').textContent = (day.sessions || []).length;
+  }
+
+  // Mini chart (last 7 days)
+  function renderMiniChart(){
+    const canvas = $('#miniChart');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const all = loadData();
+    const labels = [];
+    const values = [];
+    for(let i=6;i>=0;i--){
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0,10);
+      labels.push(key.slice(5));
+      values.push((all[key] && all[key].totalMs) ? Math.round(all[key].totalMs/1000/60) : 0); // minutes
+    }
+
+    // Draw basic bar chart
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0,0,w,h);
+    const padding = 28, barGap = 10;
+    const maxV = Math.max(...values, 10);
+    const barWidth = (w - padding*2 - (values.length-1)*barGap) / values.length;
+
+    // background gradient
+    const g = ctx.createLinearGradient(0,0,0,h);
+    g.addColorStop(0,'rgba(124,92,255,0.12)');
+    g.addColorStop(1,'rgba(0,212,255,0.02)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,w,h);
+
+    values.forEach((v,i) => {
+      const x = padding + i*(barWidth + barGap);
+      const barH = (v / maxV) * (h - padding*2);
+      const y = h - padding - barH;
+      // bar background
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      ctx.fillRect(x, h-padding - 24, barWidth, 24);
+      // bar
+      const barGrad = ctx.createLinearGradient(x,y,x,y+barH);
+      barGrad.addColorStop(0,'#7c5cff');
+      barGrad.addColorStop(1,'#00d4ff');
+      ctx.fillStyle = barGrad;
+      ctx.fillRect(x, y, barWidth, barH);
+      // label
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.font = '12px Inter, sans-serif';
+      ctx.fillText(labels[i], x, h - 6);
+    });
+  }
+
+  function renderAll(){
+    renderSessions();
+    updateHomeStats();
+    renderMiniChart();
+  }
+
+  // keep UI live updating (every second) for display
+  setInterval(()=> {
+    if(activeSessionStart) {
+      $('#displayTotal').textContent = formatDuration((loadData()[nowISO()]?.totalMs || 0) + (Date.now() - activeSessionStart));
+    }
+    updateHomeStats();
+    renderMiniChart();
+  }, 1000);
+
+  // Start tracking if tab is visible at load
+  evaluateTrackingState();
+  renderAll();
+
+  // --------------------------
+  // Contact page behavior
+  // --------------------------
+  const contactForm = $('#contactForm');
+  const devEmailEl = $('#devEmail');
+  // default dev email; user should replace with their real email in code or here.
+  const DEV_EMAIL = devEmailEl.textContent || 'dev@example.com';
+
+  $('#copyDevEmail')?.addEventListener('click', async ()=>{
+    try{
+      await navigator.clipboard.writeText(DEV_EMAIL);
+      showMsg('Copied', 'Developer email copied to clipboard.');
+    }catch(e){ showMsg('Copy failed', DEV_EMAIL); }
+  });
+
+  contactForm?.addEventListener('submit', e => {
+    e.preventDefault();
+    const name = $('#cName').value.trim();
+    const email = $('#cEmail').value.trim();
+    const message = $('#cMessage').value.trim();
+    if(!name || !email || !message) { showMsg('Please fill all fields', 'All fields are required'); return; }
+    // Build mailto
+    const subject = encodeURIComponent('ScreenTime message from ' + name);
+    const body = encodeURIComponent(\`From: \${name} <\${email}>\n\n\${message}\n\n— Sent from ScreenTime UI\`);
+    const mailto = \`mailto:\${DEV_EMAIL}?subject=\${subject}&body=\${body}\`;
+    // open in new tab
+    window.location.href = mailto;
+    showMsg('Email opened', 'Your email client should open. Replace mailto in code to send directly via server.');
+  });
+
+  // --------------------------
+  // Small UX & finishing touches
+  // --------------------------
+  // Populate year
+  $('#year').textContent = new Date().getFullYear();
+
+  // show home quick updates (already handled)
+  // protect against computer sleep / tab inactivity gracefully by using visibility API
+  // Accessibility: allow keyboard navigation for hidden hamburger (not fully exhaustive but okay)
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape') {
+      // close any message cards (non-critical)
+      $$('.msg-card').forEach(m => m.remove());
+    }
+    // helpful shortcut: go to tracker with Ctrl+K
+    if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k'){
+      e.preventDefault();
+      showPage('main');
+      $('#displayTotal').focus();
+    }
+  });
+
+  // Helper: if user is not signed in, greeting is Guest
+  const user = getUser();
+  if(user) $('#userGreeting').textContent = user.name.split(' ')[0];
+  else $('#userGreeting').textContent = 'Guest';
+
+  // Ensure updates when tab is reloaded/resumed
+  window.addEventListener('storage', () => { data = loadData(); renderAll(); });
+
+  // Initial small animation on hero
+  setTimeout(()=> document.querySelectorAll('.fade-in').forEach(el=> el.style.opacity = 1), 120);
+
+})(); // IIFE
+</script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tracker • ScreenTime</title>
+  <meta name="description" content="Tracker dashboard — live tracking, session list, export, pause/resume." />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-root">
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="brand-mark">ST</div>
+        <div>
+          <div class="brand-title">ScreenTime</div>
+          <div class="brand-sub">Privacy-first tab tracker</div>
+        </div>
+      </div>
+
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="main.html" class="nav-link active">Tracker</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container tracker-page">
+    <section class="tracker-top card glass animate-fadeup">
+      <div class="tracker-grid">
+        <div class="tracker-visual">
+          <div class="circle-wrap">
+            <svg viewBox="0 0 120 120" class="progress-circle" aria-hidden="true">
+              <defs>
+                <linearGradient id="g1" x1="0" x2="1">
+                  <stop offset="0%" stop-color="#7c5cff"/>
+                  <stop offset="100%" stop-color="#00d4ff"/>
+                </linearGradient>
+              </defs>
+              <circle cx="60" cy="60" r="46" class="bg"></circle>
+              <circle cx="60" cy="60" r="46" class="fg" stroke="url(#g1)"></circle>
+            </svg>
+            <div class="circle-center">
+              <div class="tiny muted">Today</div>
+              <div id="totalLarge" class="total-large">00:00:00</div>
+              <div class="tiny muted" id="totalMinutes">0 min</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tracker-controls">
+          <div class="controls-row">
+            <button class="btn btn-primary" id="pauseBtn">Pause tracking</button>
+            <button class="btn btn-ghost" id="resumeBtn">Resume</button>
+            <button class="btn btn-ghost" id="resetToday">Reset Today</button>
+            <button class="btn btn-ghost" id="exportCsv">Export CSV</button>
+          </div>
+
+          <div class="muted tiny" style="margin-top:10px">Tracking happens while the tab is active and focused. Data is saved locally. Pause when you don't want to collect time.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card glass sessions-card animate-fadeup">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3>Sessions • Today</h3>
+        <div class="tiny muted">Latest first</div>
+      </div>
+
+      <div id="sessionsContainer" class="sessions-list">
+        <div class="muted tiny">No sessions recorded yet. Leave this tab open to begin tracking.</div>
+      </div>
+    </section>
+
+    <section class="card glass animate-fadeup">
+      <h3>Last 7 days (minutes)</h3>
+      <canvas id="weekChart" width="720" height="160" aria-hidden="true"></canvas>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div><strong>ScreenTime</strong> • Built by <span id="devNameMain">Aswini Devi Medisetti</span></div>
+      <div class="footer-meta tiny muted">© <span id="yearMain"></span> • Local-first</div>
+      <div class="tiny muted">Tip: Use the export button to save history as CSV.</div>
+    </div>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
